@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'djoser',
     'mptt',
+
+    'social',
 ]
 
 REST_FRAMEWORK = {
