@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'djoser',
     'mptt',
 
-    'picturic'
+    'picturic',
     'social',
     'blog',
 ]
