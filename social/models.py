@@ -53,7 +53,7 @@ class Comment(MPTTModel):
     _email = EmailField(_("Email"), null=True, blank=True)
     hidden = BooleanField(default=False, blank=True)
     created_at = DateTimeField(_("Created at"), auto_now_add=True)
-
+    is_accepted = BooleanField(_("Is accepted"), default=False)
     user = ForeignKey(
         to=User, on_delete=CASCADE,
         null=True, blank=True,
