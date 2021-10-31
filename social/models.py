@@ -90,8 +90,16 @@ class Comment(MPTTModel):
             return self.user.get_full_name()
         return self._name
 
+    @name.setter
+    def name(self, value: str):
+        self._name = value
+
     @property
     def email(self):
         if self.user:
             return self.user.email
         return self._email
+
+    @email.setter
+    def email(self, value: str):
+        self._email = value
