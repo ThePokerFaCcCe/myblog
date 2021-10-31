@@ -10,6 +10,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = True
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'blog.User'
 # Application definition
 
 INSTALLED_APPS = [
@@ -29,7 +30,9 @@ INSTALLED_APPS = [
     'djoser',
     'mptt',
 
+    'picturic'
     'social',
+    'blog',
 ]
 
 REST_FRAMEWORK = {
