@@ -9,8 +9,8 @@ from django.db.models.fields import TextField
 from django.db.models.deletion import PROTECT
 from django.db.models.base import Model
 from django.core.mail import send_mail
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 from social.models import Comment, Like, TaggedItem
 from picturic.fields import PictureField
@@ -131,8 +131,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Category(Model):
     title = models.CharField(_("title"), max_length=40)
-    slug = models.SlugField(allow_unicode=True, editable=False, auto_created=True)
-    description = models.TextField(_("description"), max_length=120)
+    slug = models.SlugField(
+        allow_unicode=True, editable=False,
+        auto_created=True, blank=True, unique=True
+    )
+    description = models.TextField(_("description"),
+                                   max_length=120, null=True, blank=True
+                                   )
     picture = PictureField(
         verbose_name=_("Picture"),
         use_upload_to_func=True,
@@ -144,6 +149,10 @@ class Category(Model):
 
 class Post(Model):
     title = models.CharField(_("title"), max_length=80)
+    slug = models.SlugField(
+        allow_unicode=True, editable=False,
+        auto_created=True, blank=True, unique=True
+    )
     content = TextField(_("Content"))
     picture = PictureField(
         verbose_name=_("Picture"),
