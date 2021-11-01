@@ -48,7 +48,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'created_at',
         ]
         extra_kwargs = {
-            'email': {'write_only': True},
+            'email': {'write_only': True, 'source': "_email"},
             'is_accepted': {"read_only": True},
             'user': {'read_only': True},
             'hidden': {'read_only': True},
