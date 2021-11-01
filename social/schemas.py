@@ -4,12 +4,13 @@ from core.schema_helper import PAGINATION_DEFAULT, RESPONSE_DEFAULT_LIST, RESPON
 
 _base_comment = {
     "id": int,
+    "is_accepted": bool,
     "reply_to": int,
+    'name': str,
     "text": str,
     "hidden": bool,
     "user": int,
     "created_at": "datetime",
-    "updated_at": "datetime",
 }
 
 TAG_RESPONSE_RETRIEVE = OpenApiExample(
