@@ -36,7 +36,7 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':[
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': "drf_spectacular.openapi.AutoSchema"
@@ -44,7 +44,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(weeks=100), # I don't want to refresh my token in development
+    'ACCESS_TOKEN_LIFETIME': timedelta(weeks=100),  # I don't want to refresh my token in development
     'REFRESH_TOKEN_LIFETIME': timedelta(weeks=300),
 }
 
@@ -73,7 +73,13 @@ DJOSER = {
     'PERMISSIONS': {
         "user_list": ['rest_framework.permissions.IsAdminUser'],
         'user_delete': ['rest_framework.permissions.IsAdminUser'],
-    }
+    },
+
+    'SERIALIZERS': {
+        'user': 'blog.serializers.UserSerializer',
+        'current_user': 'blog.serializers.UserSerializer',
+        'user_create_password_retype': "blog.serializers.UserCreateSerializer"
+    },
 }
 
 
@@ -120,7 +126,6 @@ DATABASES = {
         'PASSWORD': config("DB_PASSWORD"),
     }
 }
-
 
 
 # Password validation
