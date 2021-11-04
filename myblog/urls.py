@@ -1,6 +1,7 @@
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.conf.urls.static import static
 from django.urls import path, include
 from django.conf import settings
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -9,7 +10,9 @@ urlpatterns = [
     path('api/v1/', include("blog.urls")),
     path('api/v1/', include("djoser.urls")),
     path('api/v1/', include("social.urls")),
-]
+]\
+    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     import debug_toolbar
