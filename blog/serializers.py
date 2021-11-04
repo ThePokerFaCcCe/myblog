@@ -61,6 +61,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'profile_image'
         ]
 
+    def update(self, instance: User, validated_data):
+        if instance.profile_image:
+            instance.profile_image.delete()
+
+        return super().update(instance, validated_data)
+
 
 class UserStaffEditSerializer(serializers.ModelSerializer):
 
