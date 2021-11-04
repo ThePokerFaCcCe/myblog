@@ -38,6 +38,8 @@ def convert_type_to_value(vtype) -> Any:
                 return 4294967295
             if vtype == 'datetime':
                 return "2000-12-29T00:00:00.000Z"
+            if vtype == 'date':
+                return "2000-12-29"
             if vtype == 'email':
                 return "user@example.com"
             if vtype == 'uuid':
