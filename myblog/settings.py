@@ -71,6 +71,7 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_RETYPE': True,
 
     'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
         "user_list": ['rest_framework.permissions.IsAdminUser'],
         'user_delete': ['rest_framework.permissions.IsAdminUser'],
     },

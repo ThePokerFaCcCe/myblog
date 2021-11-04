@@ -49,3 +49,50 @@ class UserSerializer(DjoserUserSerializer):
             'birth_date',
             'profile_image',
         ] + read_only_fields
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    profile_image = PictureField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'profile_image'
+        ]
+
+
+class UserStaffEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'birth_date',
+            'email',
+            'is_active',
+            'is_vip',
+            'is_author',
+            'rank_expire_date',
+        ]
+
+
+class UserSuperEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'birth_date',
+            'email',
+            'is_active',
+            'is_vip',
+            'is_author',
+            'is_staff',
+            'is_superuser',
+            'rank_expire_date',
+        ]
