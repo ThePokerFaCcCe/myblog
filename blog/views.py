@@ -1,15 +1,19 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import status
+from djoser.views import UserViewSet as DjoserUserViewSet
+from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.parsers import MultiPartParser
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser
+from rest_framework import status
 
-from djoser.views import UserViewSet as DjoserUserViewSet
-
-from core.utils import all_methods
 from core.permissions import IsAdmin, IsOwnerOfItem
+from core.utils import all_methods
+from .mixins import CategoryDefaultsMixin, CategoryDetailMixin
 from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST
-from .serializers import UserProfileSerializer, UserSerializer, UserStaffEditSerializer, UserSuperEditSerializer
+from .serializers import (UserSerializer,
+                          UserProfileSerializer, UserStaffEditSerializer,
+                          UserSuperEditSerializer)
 
 
 @extend_schema_view(
@@ -64,3 +68,17 @@ class UserViewSet(DjoserUserViewSet):
     def me_profile_image(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.profile_image(request, *args, **kwargs)
+
+
+class CategoryListViewSet(CategoryDefaultsMixin,
+                          ListModelMixin, CreateModelMixin,
+                          GenericViewSet):
+    pass
+
+
+class CategoryPKDetailViewSet(CategoryDetailMixin):
+    lookup_field = 'id'
+
+
+class CategorySlugDetailViewSet(CategoryDetailMixin):
+    lookup_field = 'slug'

@@ -3,9 +3,10 @@ from djoser.serializers import (
     UserCreatePasswordRetypeSerializer as DjoserUserCreateSerializer
 )
 from rest_framework import serializers
-from blog.models import Category, User
+from core.serializers import DeleteOldPicSerializerMixin
 
 from picturic.serializer_fields import PictureField
+from .models import Category, User
 
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
@@ -62,8 +63,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance: User, validated_data):
-        if instance.profile_image:
-            instance.profile_image.delete()
+        instance.profile_image.delete()
 
         return super().update(instance, validated_data)
 
@@ -106,3 +106,17 @@ class UserSuperEditSerializer(serializers.ModelSerializer):
 
 class UserDeleteSerializer(serializers.Serializer):
     pass
+
+
+class CategorySerializer(DeleteOldPicSerializerMixin, serializers.ModelSerializer):
+    picture = PictureField(required=False, allow_null=True)
+
+    class Meta:
+        model = Category
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'description',
+            'picture',
+        ]
