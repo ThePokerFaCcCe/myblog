@@ -1,5 +1,5 @@
 from drf_spectacular.utils import OpenApiExample
-from core.schema_helper import RESPONSE_DEFAULT_RETRIEVE, schema_generator
+from core.schema_helper import schema_generator
 
 USER_EDIT_REQUEST = OpenApiExample(
     name='User',
