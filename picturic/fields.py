@@ -36,6 +36,7 @@ class PictureFileField(ImageFieldFile):
             self.thumbnail.delete(save=save)
         except:
             pass
+        setattr(self.instance, self.field.name, None)
 
 
 class PictureDescriptor(ImageFileDescriptor):
