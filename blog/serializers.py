@@ -3,7 +3,7 @@ from djoser.serializers import (
     UserCreatePasswordRetypeSerializer as DjoserUserCreateSerializer
 )
 from rest_framework import serializers
-from blog.models import User
+from blog.models import Category, User
 
 from picturic.serializer_fields import PictureField
 
@@ -102,3 +102,7 @@ class UserSuperEditSerializer(serializers.ModelSerializer):
             'is_superuser',
             'rank_expire_date',
         ]
+
+
+class UserDeleteSerializer(serializers.Serializer):
+    pass

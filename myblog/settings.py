@@ -79,7 +79,8 @@ DJOSER = {
     'SERIALIZERS': {
         'user': 'blog.serializers.UserSerializer',
         'current_user': 'blog.serializers.UserSerializer',
-        'user_create_password_retype': "blog.serializers.UserCreateSerializer"
+        'user_create_password_retype': "blog.serializers.UserCreateSerializer",
+        'user_delete': "blog.serializers.UserDeleteSerializer",
     },
 }
 
