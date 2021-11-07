@@ -179,9 +179,11 @@ class Post(Model):
     category = ForeignKey(
         to=Category, on_delete=PROTECT,
         verbose_name=_("Category"),
+        related_name='posts',
     )
     author = ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=PROTECT,
         verbose_name=_("Author"),
+        related_name='posts',
     )
