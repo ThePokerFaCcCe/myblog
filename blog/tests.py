@@ -49,6 +49,20 @@ class CreateSlugTest(TestCase):
         slug = slugify(category.title, allow_unicode=True)
         self.assertEqual(category.slug, slug)
 
+    def test_duplicate_slug(self):
+        category1 = create_category(title='big robbers')
+        category2 = create_category(title='big robbers')
+        self.assertNotEqual(category1.slug, category2.slug)
+
+    def test_edit_slug(self):
+        category = create_category(title='big robbers')
+        old_slug = category.slug
+
+        category.title = 'hello world'
+        category.save()
+
+        self.assertEqual(category.slug, old_slug)
+
 
 class UserTest(TestCase):
     def _user_url(self, pk):
