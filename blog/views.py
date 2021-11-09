@@ -1,22 +1,23 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.parsers import MultiPartParser
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from blog.filters import CategoryFilter
 
-from core.permissions import IsAdmin, IsOwnerOfItem
 from core.utils import all_methods
-from .mixins import CategoryDefaultsMixin, CategoryDetailMixin, RUDWithFilterMixin
+from core.permissions import IsAdmin, IsOwnerOfItem
+from .filters import CategoryFilter, PostDetailFilter, PostFilter
 from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST
+from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
+                     PostDefaultsMixin, PostDetailMixin,
+                     RUDWithFilterMixin)
 from .serializers import (UserSerializer,
-                          UserProfileSerializer, UserStaffEditSerializer,
-                          UserSuperEditSerializer)
+                          UserProfileSerializer,
+                          UserStaffEditSerializer, UserSuperEditSerializer)
 
 
 @extend_schema_view(
@@ -81,3 +82,14 @@ class CategoryListViewSet(CategoryDefaultsMixin,
 
 class CategoryDetailViewSet(RUDWithFilterMixin, CategoryDetailMixin):
     filterset_class = CategoryFilter
+
+
+class PostListViewSet(PostDefaultsMixin,
+                      ListModelMixin, CreateModelMixin,
+                      GenericViewSet):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PostFilter
+
+
+class PostDetailViewSet(RUDWithFilterMixin, PostDetailMixin):
+    filterset_class = PostDetailFilter

@@ -6,7 +6,7 @@ from rest_framework import serializers
 from core.serializers import DeleteOldPicSerializerMixin
 
 from picturic.serializer_fields import PictureField
-from .models import Category, User
+from .models import Category, User, Post
 
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
@@ -119,4 +119,21 @@ class CategorySerializer(DeleteOldPicSerializerMixin, serializers.ModelSerialize
             'slug',
             'description',
             'picture',
+        ]
+
+
+class PostSerializer(DeleteOldPicSerializerMixin, serializers.ModelSerializer):
+    picture = PictureField(required=False, allow_null=True)
+
+    class Meta:
+        model = Post
+        fields = [
+            "title",
+            "slug",
+            "category",
+            "picture",
+            "content",
+            "author",
+            "created_at",
+            "updated_at",
         ]

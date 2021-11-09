@@ -36,3 +36,17 @@ class CategoryDetailMixin(CategoryDefaultsMixin,
                           DeletePicMixin, DestroyModelMixin,
                           GenericViewSet):
     pass
+
+
+class PostDefaultsMixin:
+    queryset = Post.objects.select_related("category")
+    serializer_class = PostSerializer
+    parser_classes = [MultiPartParser, JSONParser]
+    permission_classes = [IsReadOnly | IsAdmin | (IsAuthor & IsOwnerOfItem)]
+
+
+class PostDetailMixin(PostDefaultsMixin,
+                      RetrieveModelMixin, UpdateModelMixin,
+                      DeletePicMixin, DestroyModelMixin,
+                      GenericViewSet):
+    pass
