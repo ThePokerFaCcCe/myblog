@@ -39,7 +39,7 @@ class CategoryDetailMixin(CategoryDefaultsMixin,
 
 
 class PostDefaultsMixin:
-    queryset = Post.objects.select_related("category")
+    queryset = Post.objects.select_related("category").prefetch_related("tags__tag", 'likes')
     serializer_class = PostSerializer
     parser_classes = [MultiPartParser, JSONParser]
     permission_classes = [IsReadOnly | IsAdmin | (IsAuthor & IsOwnerOfItem)]

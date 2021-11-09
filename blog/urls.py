@@ -22,10 +22,11 @@ router.register('post', PostListViewSet, basename='post')
 
 category_detail = CategoryDetailViewSet.as_view({**VIEW_DETAIL})
 post_detail = PostDetailViewSet.as_view({**VIEW_DETAIL})
-
+post_detail_like = PostDetailViewSet.as_view({"get": "like", "post": "like", "delete": "like"})
 
 urlpatterns = [
     path("", include(router.urls)),
     path("category/get/", category_detail, name='category-detail'),
     path("post/get/", post_detail, name='post-detail'),
+    path("post/get/like/", post_detail_like, name='post-like-detail'),
 ]

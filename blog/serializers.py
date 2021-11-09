@@ -3,9 +3,14 @@ from djoser.serializers import (
     UserCreatePasswordRetypeSerializer as DjoserUserCreateSerializer
 )
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
+from rest_framework.relations import PrimaryKeyRelatedField
 from core.serializers import DeleteOldPicSerializerMixin
 
 from picturic.serializer_fields import PictureField
+from social.models import Tag
+from social.serializer_mixins import LikeSerializerMixin, TagSerializerMixin
+from .serializer_mixins import UserSerializerMixin
 from .models import Category, User, Post
 
 
@@ -122,18 +127,36 @@ class CategorySerializer(DeleteOldPicSerializerMixin, serializers.ModelSerialize
         ]
 
 
-class PostSerializer(DeleteOldPicSerializerMixin, serializers.ModelSerializer):
+class PostSerializer(DeleteOldPicSerializerMixin,
+                     LikeSerializerMixin,
+                     TagSerializerMixin,
+                     UserSerializerMixin,
+                     serializers.ModelSerializer,):
     picture = PictureField(required=False, allow_null=True)
+    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+
+    liked_by_user = SerializerMethodField()
+    likes = SerializerMethodField()
+    dislikes = SerializerMethodField()
 
     class Meta:
         model = Post
         fields = [
+            'id',
             "title",
             "slug",
             "category",
             "picture",
             "content",
             "author",
+            'tags',
+            'likes',
+            'dislikes',
+            'liked_by_user',
             "created_at",
             "updated_at",
         ]
+
+        extra_kwargs = {
+            'author': {"read_only": True},
+        }

@@ -2,7 +2,7 @@ from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from social.schemas import COMMENT_RESPONSE_RETRIEVE
-from .models import Tag, TaggedItem, Comment
+from .models import Like, Tag, TaggedItem, Comment
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -26,6 +26,18 @@ class TaggedItemSerializer(serializers.ModelSerializer):
 
     def get_label(self, obj) -> str:
         return obj.tag.label
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = [
+            "status",
+            "user",
+        ]
+        extra_kwargs = {
+            'user': {"read_only": True},
+        }
 
 
 @extend_schema_serializer(examples=[COMMENT_RESPONSE_RETRIEVE])

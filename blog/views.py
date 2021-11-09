@@ -10,6 +10,7 @@ from rest_framework import status
 
 from core.utils import all_methods
 from core.permissions import IsAdmin, IsOwnerOfItem
+from social.mixins import LikeMixin
 from .filters import RUDFilter, PostFilter
 from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST, RUDParameters
 from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
@@ -91,7 +92,10 @@ class PostListViewSet(PostDefaultsMixin,
     filter_backends = [DjangoFilterBackend]
     filterset_class = PostFilter
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 @extend_schema(parameters=[RUDParameters])
-class PostDetailViewSet(RUDWithFilterMixin, PostDetailMixin):
+class PostDetailViewSet(RUDWithFilterMixin, LikeMixin, PostDetailMixin):
     filterset_class = RUDFilter
