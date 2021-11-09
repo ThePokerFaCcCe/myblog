@@ -127,6 +127,16 @@ class CategorySerializer(DeleteOldPicSerializerMixin, serializers.ModelSerialize
         ]
 
 
+class CategoryInfoSerializer(DeleteOldPicSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = [
+            'id',
+            'title',
+            'slug',
+        ]
+
+
 class PostSerializer(DeleteOldPicSerializerMixin,
                      LikeSerializerMixin,
                      TagSerializerMixin,
@@ -160,3 +170,9 @@ class PostSerializer(DeleteOldPicSerializerMixin,
         extra_kwargs = {
             'author': {"read_only": True},
         }
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['category'] = CategoryInfoSerializer(instance.category).data
+
+        return rep
