@@ -1,4 +1,5 @@
 from drf_spectacular.utils import OpenApiExample
+from rest_framework import serializers
 from core.schema_helper import schema_generator
 
 USER_EDIT_REQUEST = OpenApiExample(
@@ -38,3 +39,8 @@ USER_SUPER_EDIT_REQUEST = OpenApiExample(
         })
     }
 )
+
+
+class RUDParameters(serializers.Serializer):
+    id = serializers.IntegerField(min_value=0, required=False, allow_null=True)
+    slug = serializers.SlugField(allow_unicode=True, required=False, allow_null=True)

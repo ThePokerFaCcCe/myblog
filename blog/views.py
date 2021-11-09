@@ -10,8 +10,8 @@ from rest_framework import status
 
 from core.utils import all_methods
 from core.permissions import IsAdmin, IsOwnerOfItem
-from .filters import CategoryFilter, PostDetailFilter, PostFilter
-from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST
+from .filters import RUDFilter, PostFilter
+from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST, RUDParameters
 from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
                      PostDefaultsMixin, PostDetailMixin,
                      RUDWithFilterMixin)
@@ -80,8 +80,9 @@ class CategoryListViewSet(CategoryDefaultsMixin,
     pass
 
 
+@extend_schema(parameters=[RUDParameters])
 class CategoryDetailViewSet(RUDWithFilterMixin, CategoryDetailMixin):
-    filterset_class = CategoryFilter
+    filterset_class = RUDFilter
 
 
 class PostListViewSet(PostDefaultsMixin,
@@ -91,5 +92,6 @@ class PostListViewSet(PostDefaultsMixin,
     filterset_class = PostFilter
 
 
+@extend_schema(parameters=[RUDParameters])
 class PostDetailViewSet(RUDWithFilterMixin, PostDetailMixin):
-    filterset_class = PostDetailFilter
+    filterset_class = RUDFilter
