@@ -1,15 +1,18 @@
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from djoser.views import UserViewSet as DjoserUserViewSet
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.parsers import MultiPartParser
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from blog.filters import CategoryFilter
 
 from core.permissions import IsAdmin, IsOwnerOfItem
 from core.utils import all_methods
-from .mixins import CategoryDefaultsMixin, CategoryDetailMixin
+from .mixins import CategoryDefaultsMixin, CategoryDetailMixin, RUDWithFilterMixin
 from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST
 from .serializers import (UserSerializer,
                           UserProfileSerializer, UserStaffEditSerializer,
@@ -76,9 +79,5 @@ class CategoryListViewSet(CategoryDefaultsMixin,
     pass
 
 
-class CategoryPKDetailViewSet(CategoryDetailMixin):
-    lookup_field = 'id'
-
-
-class CategorySlugDetailViewSet(CategoryDetailMixin):
-    lookup_field = 'slug'
+class CategoryDetailViewSet(RUDWithFilterMixin, CategoryDetailMixin):
+    filterset_class = CategoryFilter

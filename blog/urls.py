@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .apps import BlogConfig
 from .views import (CategoryListViewSet,
-                    CategorySlugDetailViewSet, CategoryPKDetailViewSet,
+                    CategoryDetailViewSet,
                     UserViewSet)
 
 app_name = BlogConfig.name
@@ -11,9 +11,15 @@ app_name = BlogConfig.name
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='users')
 router.register('category', CategoryListViewSet, basename='category')
-router.register('category/id', CategoryPKDetailViewSet, basename='category-pk')
-router.register('category/slug', CategorySlugDetailViewSet, basename='category-slug')
+
+category_detail = CategoryDetailViewSet.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'delete': 'destroy'
+})
 
 urlpatterns = [
-    path("", include(router.urls))
+    path("", include(router.urls)),
+    path("category/get/", category_detail, name='category-detail')
 ]
