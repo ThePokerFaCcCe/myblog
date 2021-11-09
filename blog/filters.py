@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django_filters.rest_framework import FilterSet
+from django.forms import Form
 
 from .models import Category, Post
 
@@ -14,18 +16,25 @@ class PostFilter(FilterSet):
         }
 
 
-class PostDetailFilter(FilterSet):
+class RUDForm(Form):
+    def clean(self):
+        cleaned_data = super().clean()
+
+        id = cleaned_data.get('id')
+        slug = cleaned_data.get('slug')
+
+        if id and slug:
+            raise ValidationError("You have to enter either id or slug, not both!")
+        elif not id and not slug:
+            raise ValidationError("You have to enter id or slug!")
+
+        return cleaned_data
+
+
+class RUDFilter(FilterSet):
     class Meta:
         model = Post
-        fields = {
-            'id': ['exact'],
-            'slug': ['exact']
-        }
-
-
-class CategoryFilter(FilterSet):
-    class Meta:
-        model = Category
+        form = RUDForm
         fields = {
             'id': ['exact'],
             'slug': ['exact']
