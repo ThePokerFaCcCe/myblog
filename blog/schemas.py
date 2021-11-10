@@ -1,6 +1,12 @@
 from drf_spectacular.utils import OpenApiExample
 from rest_framework import serializers
-from core.schema_helper import schema_generator
+
+from core.schema_helper import (schema_generator,
+                                RESPONSE_DEFAULT_RETRIEVE,
+                                PAGINATION_DEFAULT, RESPONSE_DEFAULT_PAGINATED)
+from social.schemas import TAG_RESPONSE_RETRIEVE
+from picturic.schemas import PICTURE_DEFAULT
+
 
 USER_EDIT_REQUEST = OpenApiExample(
     name='User',
@@ -44,3 +50,38 @@ USER_SUPER_EDIT_REQUEST = OpenApiExample(
 class RUDParameters(serializers.Serializer):
     id = serializers.IntegerField(min_value=0, required=False, allow_null=True)
     slug = serializers.SlugField(allow_unicode=True, required=False, allow_null=True)
+
+
+CATEGORY_INFO_DEFAULT = {
+    "id": int,
+    "title": str,
+    "slug": str,
+}
+
+
+POST_RESPONSE_RETRIEVE = OpenApiExample(
+    **RESPONSE_DEFAULT_RETRIEVE,
+    value=schema_generator({
+        "id": int,
+        "title": str,
+        "slug": str,
+        "category": CATEGORY_INFO_DEFAULT,
+        "picture": PICTURE_DEFAULT,
+        "content": str,
+        "author": int,
+        "tags": [TAG_RESPONSE_RETRIEVE.value],
+        "likes": int,
+        "dislikes": int,
+        "liked_by_user": bool,
+        "created_at": "datetime",
+        "updated_at": "datetime"
+    })
+)
+
+POST_RESPONSE_PAGINATED = OpenApiExample(
+    **RESPONSE_DEFAULT_PAGINATED,
+    value={
+        **PAGINATION_DEFAULT,
+        'results': [POST_RESPONSE_RETRIEVE.value]
+    }
+)
