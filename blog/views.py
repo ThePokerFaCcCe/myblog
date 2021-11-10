@@ -7,12 +7,15 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 
 from core.utils import all_methods
 from core.permissions import IsAdmin, IsOwnerOfItem
+from core.paginations import DefaultLimitOffsetPagination
+from core.filters import OrderingFilterWithSchema
 from social.mixins import LikeMixin
 from .filters import RUDFilter, PostFilter
-from .schemas import USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST, RUDParameters
+from .schemas import POST_RESPONSE_PAGINATED, POST_RESPONSE_RETRIEVE, USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST, RUDParameters
 from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
                      PostDefaultsMixin, PostDetailMixin,
                      RUDWithFilterMixin)
@@ -86,16 +89,20 @@ class CategoryDetailViewSet(RUDWithFilterMixin, CategoryDetailMixin):
     filterset_class = RUDFilter
 
 
+@extend_schema(examples=[POST_RESPONSE_PAGINATED])
 class PostListViewSet(PostDefaultsMixin,
                       ListModelMixin, CreateModelMixin,
                       GenericViewSet):
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilterWithSchema]
     filterset_class = PostFilter
+    pagination_class = DefaultLimitOffsetPagination
+    search_fields = ['title', 'content']
+    ordering_fields = ['title', 'updated_at', 'created_at', 'category__title']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
-@extend_schema(parameters=[RUDParameters])
+@extend_schema(parameters=[RUDParameters], examples=[POST_RESPONSE_RETRIEVE])
 class PostDetailViewSet(RUDWithFilterMixin, LikeMixin, PostDetailMixin):
     filterset_class = RUDFilter
