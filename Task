@@ -1,7 +1,11 @@
-post viewset by id & slug
-post like & comment 
+post comment 
+post vip support
 post view count
 author comment
+user count it's posts in serializers
+user like
 
 -prof tests
 -collection viewset by id & slug
+-post viewset by id & slug
+-post like
