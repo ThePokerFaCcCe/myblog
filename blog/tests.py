@@ -1,3 +1,4 @@
+from django.utils.http import urlencode
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.utils.text import slugify
@@ -28,14 +29,20 @@ def create_category(**kwargs):
     return Category.objects.create(**{**data, **kwargs})
 
 
-def create_post(**kwargs):
+def create_post(only_data=False, **kwargs):
     data = {
         'title': "Lorem",
         'content': "Lorem ipsum...",
         'category': create_category(),
         'author': create_user(is_author=True),
     }
-    return Post.objects.create(**{**data, **kwargs})
+    data = {**data, **kwargs}
+
+    if only_data:
+        data.pop('author', None)
+        data['category'] = data['category'].pk
+        return data
+    return Post.objects.create(**data)
 
 
 class CreateSlugTest(TestCase):
@@ -166,3 +173,106 @@ class UserTest(TestCase):
         )
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class PostTest(TestCase):
+    def _post_detail_url(self, pk):
+        return f"{reverse('blog:post-detail')}?{urlencode({'id':pk})}"
+
+    def _post_detail_like_url(self, pk):
+        return f"{reverse('blog:post-like-detail')}?{urlencode({'id':pk})}"
+
+    def _post_create_url(self):
+        return reverse('blog:post-list')
+
+    def setUp(self) -> None:
+        self.staffuser = create_user(is_staff=True)
+        self.author = create_user(is_author=True)
+        self.user = create_user()
+
+        self.staffuser_client = APIClient()
+        self.staffuser_client.force_authenticate(self.staffuser)
+
+        self.author_client = APIClient()
+        self.author_client.force_authenticate(self.author)
+
+        self.user_client = APIClient()
+        self.user_client.force_authenticate(self.user)
+
+    def test_create_by_author(self):
+        res = self.author_client.post(
+            self._post_create_url(),
+            create_post(only_data=True),
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    def test_create_by_user(self):
+        res = self.user_client.post(
+            self._post_create_url(),
+            create_post(only_data=True),
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_edit_by_another_author(self):
+        post = create_post(author=self.author)
+        author2_client = APIClient()
+        author2_client.force_authenticate(create_user(is_author=True))
+        res = author2_client.patch(
+            self._post_detail_url(post.pk),
+            {
+                'title': "New title2"
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_edit_by_staff(self):
+        post = create_post(author=self.author)
+        res = self.staffuser_client.patch(
+            self._post_detail_url(post.pk),
+            {
+                'title': "New title2"
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_likes(self):
+        post = create_post()
+        like_url = self._post_detail_like_url(post.pk)
+
+        # Test no content result if there isn't liked by user
+        res = self.user_client.get(like_url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Test liked successfully
+        res = self.user_client.post(
+            like_url,
+            {
+                'status': "L"
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED, msg=res.data)
+
+        # Test liked_by_user is True for user
+        res = self.user_client.get(self._post_detail_url(post.pk))
+        self.assertEqual(res.data['likes'], 1)
+        self.assertEqual(res.data['dislikes'], 0)
+        self.assertEqual(res.data['liked_by_user'], True)
+
+        # Test liked_by_user isn't True for all
+        res = self.staffuser_client.get(self._post_detail_url(post.pk))
+        self.assertEqual(res.data['liked_by_user'], None)
+
+        # Test disliked successfully
+        res = self.user_client.post(
+            like_url,
+            {
+                'status': "DL"
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)  # 200 bcs it's updated, not created!
+
+        # Test liked_by_user is False for user
+        res = self.user_client.get(self._post_detail_url(post.pk))
+        self.assertEqual(res.data['likes'], 0)
+        self.assertEqual(res.data['dislikes'], 1)
+        self.assertEqual(res.data['liked_by_user'], False)
