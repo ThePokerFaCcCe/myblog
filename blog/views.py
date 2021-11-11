@@ -15,7 +15,9 @@ from core.paginations import DefaultLimitOffsetPagination
 from core.filters import OrderingFilterWithSchema
 from social.mixins import LikeMixin
 from .filters import RUDFilter, PostFilter
-from .schemas import POST_RESPONSE_PAGINATED, POST_RESPONSE_RETRIEVE, USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST, RUDParameters
+from .schemas import (POST_RESPONSE_PAGINATED, POST_RESPONSE_RETRIEVE,
+                      USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST,
+                      USER_SUPER_EDIT_REQUEST, RUDParameters)
 from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
                      PostDefaultsMixin, PostDetailMixin,
                      RUDWithFilterMixin)

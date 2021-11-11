@@ -19,8 +19,12 @@ class LikeMixin:
             return LikeSerializer
         return super().get_serializer_class()
 
-    @action(detail=True, methods=all_methods('put', 'patch'),
-            permission_classes=[IsAuthenticated])
+    def get_permissions(self):
+        if self.action == 'like':
+            return [IsAuthenticated()]
+        return super().get_permissions()
+
+    @action(detail=True, methods=all_methods('put', 'patch'))
     def like(self, request, *args, **kwargs):
         instance = self.get_object()
         user = self.request.user
@@ -51,7 +55,7 @@ class LikeMixin:
 
         else:
             if not like:
-                raise Http404
+                return Response(status=status.HTTP_204_NO_CONTENT)
 
             if request.method == 'GET':
                 serializer = self.get_serializer(like)
