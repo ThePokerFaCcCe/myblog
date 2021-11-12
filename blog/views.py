@@ -1,6 +1,8 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from django.contrib.contenttypes.models import ContentType
 from djoser.views import UserViewSet as DjoserUserViewSet
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.parsers import MultiPartParser
 from rest_framework.viewsets import GenericViewSet
@@ -9,15 +11,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 
-from core.utils import all_methods
-from core.permissions import IsAdmin, IsOwnerOfItem
 from core.paginations import DefaultLimitOffsetPagination
+from core.permissions import IsAdmin, IsOwnerOfItem
 from core.filters import OrderingFilterWithSchema
+from core.utils import all_methods
+from social.views import ListCreateCommentsViewset
 from social.mixins import LikeMixin
-from .filters import RUDFilter, PostFilter
+from .models import Post
+from .filters import CategoryRUDFilter, PostRUDFilter, PostFilter
 from .schemas import (POST_RESPONSE_PAGINATED, POST_RESPONSE_RETRIEVE,
                       USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST,
-                      USER_SUPER_EDIT_REQUEST, RUDParameters)
+                      USER_SUPER_EDIT_REQUEST, rud_parameters)
 from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
                      PostDefaultsMixin, PostDetailMixin,
                      RUDWithFilterMixin)
@@ -86,9 +90,9 @@ class CategoryListViewSet(CategoryDefaultsMixin,
     pass
 
 
-@extend_schema(parameters=[RUDParameters])
+@extend_schema(parameters=[rud_parameters])
 class CategoryDetailViewSet(RUDWithFilterMixin, CategoryDetailMixin):
-    filterset_class = RUDFilter
+    filterset_class = CategoryRUDFilter
 
 
 @extend_schema(examples=[POST_RESPONSE_PAGINATED])
@@ -105,6 +109,27 @@ class PostListViewSet(PostDefaultsMixin,
         serializer.save(author=self.request.user)
 
 
-@extend_schema(parameters=[RUDParameters], examples=[POST_RESPONSE_RETRIEVE])
+@extend_schema_view(  # If i don't use it, it will be shown as response for like view
+    retrieve=extend_schema(examples=[POST_RESPONSE_RETRIEVE]),
+    update=extend_schema(examples=[POST_RESPONSE_RETRIEVE]),
+    partial_update=extend_schema(examples=[POST_RESPONSE_RETRIEVE]),
+)
+@extend_schema(parameters=[rud_parameters])
 class PostDetailViewSet(RUDWithFilterMixin, LikeMixin, PostDetailMixin):
-    filterset_class = RUDFilter
+    filterset_class = PostRUDFilter
+
+
+@extend_schema(parameters=[rud_parameters])
+class PostCommentViewSet(ListCreateCommentsViewset):
+    content_type = ContentType.objects.get_for_model(Post)
+    _oid = None
+
+    def _get_oid(self):
+        if not self._oid:
+            id = self.request.query_params.get('id')
+            slug = self.request.query_params.get('slug')
+            where = {"pk": id} if id else {"slug": slug}
+
+            post = get_object_or_404(Post.objects.all(), **where)
+            self._oid = post.pk
+        return self._oid

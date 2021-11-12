@@ -1,4 +1,4 @@
-from drf_spectacular.utils import OpenApiExample
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter
 from rest_framework import serializers
 
 from core.schema_helper import (schema_generator,
@@ -47,10 +47,12 @@ USER_SUPER_EDIT_REQUEST = OpenApiExample(
 )
 
 
-class RUDParameters(serializers.Serializer):
+class RUDParametersSerializer(serializers.Serializer):
     id = serializers.IntegerField(min_value=0, required=False, allow_null=True)
     slug = serializers.SlugField(allow_unicode=True, required=False, allow_null=True)
 
+
+rud_parameters = OpenApiParameter('Get Item', description='Enter either `id` or `slug` for finding item', type=RUDParametersSerializer)
 
 CATEGORY_INFO_DEFAULT = {
     "id": int,

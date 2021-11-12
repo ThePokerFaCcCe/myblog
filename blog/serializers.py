@@ -9,7 +9,7 @@ from core.serializers import DeleteOldPicSerializerMixin
 
 from picturic.serializer_fields import PictureField
 from social.models import Tag
-from social.serializer_mixins import LikeSerializerMixin, TagSerializerMixin
+from social.serializer_mixins import CommentSerializerMixin, LikeSerializerMixin, TagSerializerMixin
 from .serializer_mixins import UserSerializerMixin
 from .models import Category, User, Post
 
@@ -140,6 +140,7 @@ class CategoryInfoSerializer(DeleteOldPicSerializerMixin, serializers.ModelSeria
 class PostSerializer(DeleteOldPicSerializerMixin,
                      LikeSerializerMixin,
                      TagSerializerMixin,
+                     CommentSerializerMixin,
                      UserSerializerMixin,
                      serializers.ModelSerializer,):
     picture = PictureField(required=False, allow_null=True)
@@ -148,6 +149,7 @@ class PostSerializer(DeleteOldPicSerializerMixin,
     liked_by_user = SerializerMethodField()
     likes = SerializerMethodField()
     dislikes = SerializerMethodField()
+    comments_count = SerializerMethodField()
 
     class Meta:
         model = Post
@@ -163,6 +165,7 @@ class PostSerializer(DeleteOldPicSerializerMixin,
             'likes',
             'dislikes',
             'liked_by_user',
+            'comments_count',
             "created_at",
             "updated_at",
         ]

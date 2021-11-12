@@ -31,9 +31,19 @@ class RUDForm(Form):
         return cleaned_data
 
 
-class RUDFilter(FilterSet):
+class PostRUDFilter(FilterSet):
     class Meta:
         model = Post
+        form = RUDForm
+        fields = {
+            'id': ['exact'],
+            'slug': ['exact']
+        }
+
+
+class CategoryRUDFilter(FilterSet):
+    class Meta:
+        model = Category
         form = RUDForm
         fields = {
             'id': ['exact'],

@@ -1,32 +1,29 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from core.routers import NestedNoLookupRouter, NoLookupRouter
+
 from .apps import BlogConfig
-from .views import (CategoryListViewSet, CategoryDetailViewSet,
+from .views import (CategoryListViewSet, CategoryDetailViewSet, PostCommentViewSet,
                     PostDetailViewSet, PostListViewSet,
                     UserViewSet)
 
 app_name = BlogConfig.name
 
-VIEW_DETAIL = {
-    'get': 'retrieve',
-    'put': 'update',
-    'patch': 'partial_update',
-    'delete': 'destroy'
-}
-
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='users')
-router.register('category', CategoryListViewSet, basename='category')
-router.register('post', PostListViewSet, basename='post')
 
-category_detail = CategoryDetailViewSet.as_view({**VIEW_DETAIL})
-post_detail = PostDetailViewSet.as_view({**VIEW_DETAIL})
-post_detail_like = PostDetailViewSet.as_view({"get": "like", "post": "like", "delete": "like"})
+nl_router = NoLookupRouter()
+nl_router.register('categories', CategoryListViewSet, basename='category')
+nl_router.register('category', CategoryDetailViewSet, basename='category')
+nl_router.register('posts', PostListViewSet, basename='post')
+nl_router.register('post', PostDetailViewSet, basename='post')
+
+post_nlrouter = NestedNoLookupRouter(nl_router, 'post')
+post_nlrouter.register('comments', PostCommentViewSet, basename='post-comment')
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("category/get/", category_detail, name='category-detail'),
-    path("post/get/", post_detail, name='post-detail'),
-    path("post/get/like/", post_detail_like, name='post-like-detail'),
+    path("", include(nl_router.urls)),
+    path("", include(post_nlrouter.urls)),
 ]
