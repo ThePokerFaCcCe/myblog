@@ -95,7 +95,10 @@ class CategoryDetailViewSet(RUDWithFilterMixin, CategoryDetailMixin):
     filterset_class = CategoryRUDFilter
 
 
-@extend_schema(examples=[POST_RESPONSE_PAGINATED])
+@extend_schema_view(
+    list=extend_schema(examples=[POST_RESPONSE_PAGINATED]),
+    create=extend_schema(examples=[POST_RESPONSE_RETRIEVE])
+)
 class PostListViewSet(PostDefaultsMixin,
                       ListModelMixin, CreateModelMixin,
                       GenericViewSet):
