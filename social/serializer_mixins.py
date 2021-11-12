@@ -56,3 +56,11 @@ class TagSerializerMixin:
         rep = super().to_representation(instance)
         rep['tags'] = TaggedItemSerializer(instance.tags, many=True).data
         return rep
+
+
+class CommentSerializerMixin:
+    model_comment_field = 'comments'
+    """You can change this in your subclass"""
+
+    def get_comments_count(self, instance) -> int:
+        return instance.comments.all().count()
