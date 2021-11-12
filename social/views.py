@@ -1,11 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework.decorators import permission_classes, action
 from rest_framework.response import Response
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet
-from social.schemas import COMMENT_RESPONSE_PAGINATED
+from social.schemas import COMMENT_RESPONSE_PAGINATED, COMMENT_RESPONSE_RETRIEVE
 
 from core.permissions import IsAdmin, IsAuthor, IsOwnerOfItem, IsReadOnly
 from core.utils import all_methods
@@ -68,7 +68,10 @@ class CommentViewset(mixins.RetrieveModelMixin,
         return Response(serializer.data)
 
 
-@extend_schema(examples=[COMMENT_RESPONSE_PAGINATED])
+@extend_schema_view(
+    list=extend_schema(examples=[COMMENT_RESPONSE_PAGINATED]),
+    create=extend_schema(examples=[COMMENT_RESPONSE_RETRIEVE])
+)
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet):
     # You should set `content_type`
