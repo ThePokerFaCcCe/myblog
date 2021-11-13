@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.validators import MinLengthValidator
 from django.utils.translation import gettext_lazy as _
 from django.db.models.fields.related import ForeignKey
+from django.db.models.enums import TextChoices
 from django.db.models.fields import TextField
 from django.db.models.deletion import PROTECT
 from django.db.models.base import Model
@@ -129,12 +130,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
 
+class SpecialForChoices(TextChoices):
+    STAFF = 'S', _("Staff")
+    AUTHOR = 'A', _("Author")
+    VIP = 'V', _("Vip")
+
+
 class Category(Model):
     title = models.CharField(_("title"), max_length=40)
     slug = models.SlugField(
         allow_unicode=True, editable=False,
         auto_created=True, blank=True, unique=True
     )
+    special_for = TextField(
+        _("Special for"),
+        help_text=_("This category and it's posts will only available for special users"),
+        null=True, blank=True, default=None,
+        max_length=1, choices=SpecialForChoices.choices)
+
     description = models.TextField(_("description"),
                                    max_length=120, null=True, blank=True
                                    )
@@ -153,6 +166,11 @@ class Post(Model):
         allow_unicode=True, editable=False,
         auto_created=True, blank=True, unique=True
     )
+    special_for = TextField(
+        _("Special for"),
+        help_text=_("This post will only available for special users"),
+        null=True, blank=True, default=None,
+        max_length=1, choices=SpecialForChoices.choices)
     content = TextField(_("Content"))
     picture = PictureField(
         verbose_name=_("Picture"),
