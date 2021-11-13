@@ -180,7 +180,7 @@ class PostTest(TestCase):
         return f"{reverse('blog:post-detail')}?{urlencode({'id':pk})}"
 
     def _post_detail_like_url(self, pk):
-        return f"{reverse('blog:post-like-detail')}?{urlencode({'id':pk})}"
+        return f"{reverse('blog:post-like')}?{urlencode({'id':pk})}"
 
     def _post_create_url(self):
         return reverse('blog:post-list')
@@ -276,3 +276,55 @@ class PostTest(TestCase):
         self.assertEqual(res.data['likes'], 0)
         self.assertEqual(res.data['dislikes'], 1)
         self.assertEqual(res.data['liked_by_user'], False)
+
+
+class SpecialForTest(TestCase):
+
+    def setUp(self) -> None:
+        self.staffuser = create_user(is_staff=True)
+        self.author = create_user(is_author=True)
+        self.vip = create_user(is_vip=True)
+        self.user = create_user()
+
+        self.staffuser_client = APIClient()
+        self.staffuser_client.force_authenticate(self.staffuser)
+
+        self.author_client = APIClient()
+        self.author_client.force_authenticate(self.author)
+
+        self.vip_client = APIClient()
+        self.vip_client.force_authenticate(self.vip)
+
+        self.user_client = APIClient()
+        self.user_client.force_authenticate(self.user)
+
+        create_post(special_for='S')
+        create_post(special_for='A')
+        create_post(special_for='V')
+        create_post()
+
+        self.post_list_url = reverse('blog:post-list')
+
+    def test_user_get(self):
+        res = self.user_client.get(self.post_list_url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 1)
+
+    def test_vip_get(self):
+        res = self.vip_client.get(self.post_list_url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 2)
+
+    def test_author_get(self):
+        res = self.author_client.get(self.post_list_url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 3)
+
+    def test_staff_get(self):
+        res = self.staffuser_client.get(self.post_list_url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 4)
