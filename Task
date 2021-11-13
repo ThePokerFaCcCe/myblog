@@ -1,4 +1,3 @@
-post vip support
 post view count
 author comment
 user count it's posts in serializers
@@ -10,3 +9,4 @@ fix like schema problem
 -post viewset by id & slug
 -post like
 -post comment 
+-post vip support

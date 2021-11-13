@@ -122,6 +122,7 @@ class CategorySerializer(DeleteOldPicSerializerMixin, serializers.ModelSerialize
             'id',
             'title',
             'slug',
+            'special_for',
             'description',
             'picture',
         ]
@@ -134,6 +135,7 @@ class CategoryInfoSerializer(DeleteOldPicSerializerMixin, serializers.ModelSeria
             'id',
             'title',
             'slug',
+            'special_for',
         ]
 
 
@@ -157,6 +159,7 @@ class PostSerializer(DeleteOldPicSerializerMixin,
             'id',
             "title",
             "slug",
+            'special_for',
             "category",
             "picture",
             "content",

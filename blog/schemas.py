@@ -58,8 +58,8 @@ CATEGORY_INFO_DEFAULT = {
     "id": int,
     "title": str,
     "slug": str,
+    "special_for": "V",
 }
-
 
 POST_RESPONSE_RETRIEVE = OpenApiExample(
     **RESPONSE_DEFAULT_RETRIEVE,
@@ -67,6 +67,7 @@ POST_RESPONSE_RETRIEVE = OpenApiExample(
         "id": int,
         "title": str,
         "slug": str,
+        "special_for": "V",
         "category": CATEGORY_INFO_DEFAULT,
         "picture": PICTURE_DEFAULT,
         "content": str,
