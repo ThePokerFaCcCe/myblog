@@ -1,7 +1,9 @@
-post view count
 author comment
 user count it's posts in serializers
 user like
+accept comment by admin
+auto accept admin comments
+post view count
 fix like schema problem 
 
 -prof tests
