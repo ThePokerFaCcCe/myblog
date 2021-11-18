@@ -124,8 +124,10 @@ class PostDetailViewSet(RUDWithFilterMixin, LikeMixin, PostDetailMixin):
 
 @extend_schema(parameters=[rud_parameters])
 class PostCommentViewSet(ListCreateCommentsViewset):
-    content_type = ContentType.objects.get_for_model(Post)
     _oid = None
+
+    def get_content_type(self):
+        return ContentType.objects.get_for_model(Post)
 
     def _get_oid(self):
         if not self._oid:

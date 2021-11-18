@@ -74,11 +74,13 @@ class CommentViewset(mixins.RetrieveModelMixin,
 )
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet):
-    # You should set `content_type`
+    # You should set `get_content_type`
     # and `object_id_lookup_url`
     # in your subclasses
-    content_type: ContentType = None
     object_id_lookup_url: str = None
+
+    def get_content_type(self) -> ContentType:
+        return None
 
     serializer_class = CommentSerializer
     pagination_class = DefaultLimitOffsetPagination
