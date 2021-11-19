@@ -1,4 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.query import QuerySet
+from django.http.response import Http404
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework.decorators import permission_classes, action
@@ -77,6 +79,15 @@ class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet
     # You should set `get_content_type`
     # and `object_id_lookup_url`
     # in your subclasses
+
+    queryset = None
+    """Custom queryset that contains comments"""
+
+    object_queryset = None
+    """The base object queryset for validating object id"""
+
+    _oid = None
+
     object_id_lookup_url: str = None
 
     def get_content_type(self) -> ContentType:
@@ -86,26 +97,39 @@ class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet
     pagination_class = DefaultLimitOffsetPagination
 
     def _get_oid(self):
-        return self.kwargs.get(self.object_id_lookup_url)
+        if not self._oid:
+            oid = self.kwargs.get(self.object_id_lookup_url)
+
+            assert isinstance(self.object_queryset, QuerySet), (
+                "You should set `object_queryset`"
+                "for your `ListCreateCommentsViewset` subclass"
+            )
+            if not self.object_queryset.filter(pk=oid).exists():
+                raise Http404
+            self._oid = oid
+        return self._oid
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(
-            content_type=self.content_type,
-            object_id=self._get_oid(),
-        )
-        if self.request.method == 'DELETE':
-            return queryset
+        queryset = self.queryset
+        if not queryset:
+            queryset = Comment.objects.filter(
+                content_type=self.get_content_type(),
+                object_id=self._get_oid(),
+            ).prefetch_related("user")
+
+        queryset = queryset.all()
+
         return queryset.get_cached_trees()
 
     def get_serializer_context(self):
         return {
             **super().get_serializer_context(),
             'object_id': self._get_oid(),
-            'content_type': self.content_type,
+            'content_type': self.get_content_type(),
         }
 
     def perform_create(self, serializer):
         serializer.save(
-            content_type=self.content_type,
+            content_type=self.get_content_type(),
             object_id=self._get_oid()
         )

@@ -63,4 +63,4 @@ class CommentSerializerMixin:
     """You can change this in your subclass"""
 
     def get_comments_count(self, instance) -> int:
-        return instance.comments.all().count()
+        return getattr(instance, self.model_comment_field).count()

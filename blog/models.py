@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.fields.related import ForeignKey
 from django.db.models.enums import TextChoices
 from django.db.models.fields import TextField
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.base import Model
 from django.core.mail import send_mail
 from django.conf import settings
@@ -100,6 +100,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)
 
+    compliments = GenericRelation(to=Comment, on_delete=CASCADE)
+
     objects = UserManager()
 
     EMAIL_FIELD = 'email'
@@ -190,9 +192,9 @@ class Post(Model):
         auto_now=True,
     )
 
-    comments = GenericRelation(to=Comment)
-    tags = GenericRelation(to=TaggedItem)
-    likes = GenericRelation(to=Like)
+    comments = GenericRelation(to=Comment, on_delete=CASCADE)
+    tags = GenericRelation(to=TaggedItem, on_delete=CASCADE)
+    likes = GenericRelation(to=Like, on_delete=CASCADE)
 
     category = ForeignKey(
         to=Category, on_delete=PROTECT,

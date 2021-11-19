@@ -32,8 +32,11 @@ class UserCreateSerializer(DjoserUserCreateSerializer):
         ]
 
 
-class UserSerializer(DjoserUserSerializer):
+class UserSerializer(CommentSerializerMixin, DjoserUserSerializer):
     profile_image = PictureField(read_only=True)
+    compliments_count = SerializerMethodField()
+
+    model_comment_field = 'compliments'
 
     class Meta:
         model = User
@@ -45,6 +48,7 @@ class UserSerializer(DjoserUserSerializer):
             'is_staff',
             'is_superuser',
             'rank_expire_date',
+            'compliments_count',
             'created_at',
             'updated_at',
         ]
@@ -55,6 +59,9 @@ class UserSerializer(DjoserUserSerializer):
             'birth_date',
             'profile_image',
         ] + read_only_fields
+
+    def get_compliments_count(self, instance) -> int:
+        return super().get_comments_count(instance)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -128,7 +135,7 @@ class CategorySerializer(DeleteOldPicSerializerMixin, serializers.ModelSerialize
         ]
 
 
-class CategoryInfoSerializer(DeleteOldPicSerializerMixin, serializers.ModelSerializer):
+class CategoryInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = [
@@ -144,7 +151,7 @@ class PostSerializer(DeleteOldPicSerializerMixin,
                      TagSerializerMixin,
                      CommentSerializerMixin,
                      UserSerializerMixin,
-                     serializers.ModelSerializer,):
+                     serializers.ModelSerializer):
     picture = PictureField(required=False, allow_null=True)
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
 
@@ -182,3 +189,43 @@ class PostSerializer(DeleteOldPicSerializerMixin,
         rep['category'] = CategoryInfoSerializer(instance.category).data
 
         return rep
+
+
+class PostInfoSerializer(LikeSerializerMixin,
+                         TagSerializerMixin,
+                         CommentSerializerMixin,
+                         UserSerializerMixin,
+                         serializers.ModelSerializer):
+    picture = PictureField(required=False, allow_null=True)
+    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+
+    liked_by_user = SerializerMethodField()
+    likes = SerializerMethodField()
+    dislikes = SerializerMethodField()
+    comments_count = SerializerMethodField()
+
+    content = SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = [
+            'id',
+            "title",
+            "slug",
+            'special_for',
+            "category",
+            "picture",
+            "content",
+            "author",
+            'tags',
+            'likes',
+            'dislikes',
+            'liked_by_user',
+            'comments_count',
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
+
+    def get_content(self, instance: Post) -> str:
+        return f"{instance.content[:50]} ..."

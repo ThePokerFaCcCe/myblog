@@ -1,9 +1,11 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.contrib.contenttypes.models import ContentType
 from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework.generics import get_object_or_404
+from django.contrib.auth import get_user_model
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
@@ -42,6 +44,12 @@ from .serializers import (UserSerializer,
     ),
 )
 class UserViewSet(DjoserUserViewSet):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.method == "GET":
+            queryset = queryset.prefetch_related('compliments__user')
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update']:
@@ -82,6 +90,20 @@ class UserViewSet(DjoserUserViewSet):
     def me_profile_image(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.profile_image(request, *args, **kwargs)
+
+
+class UserComplimentViewSet(ListCreateCommentsViewset):
+    object_queryset = get_user_model().objects.all().only('id')
+    object_id_lookup_url = 'user_id'
+
+    def get_content_type(self) -> ContentType:
+        return ContentType.objects.get_for_model(get_user_model())
+
+    def create(self, request, *args, **kwargs):
+        if self._get_oid() == self.request.user.pk:
+            raise ValidationError({'user_id': "You cannot add compliment for yourself"})
+
+        return super().create(request, *args, **kwargs)
 
 
 class CategoryListViewSet(CategoryDefaultsMixin,
