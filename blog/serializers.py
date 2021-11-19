@@ -35,6 +35,7 @@ class UserCreateSerializer(DjoserUserCreateSerializer):
 class UserSerializer(CommentSerializerMixin, DjoserUserSerializer):
     profile_image = PictureField(read_only=True)
     compliments_count = SerializerMethodField()
+    posts_count = SerializerMethodField()
 
     model_comment_field = 'compliments'
 
@@ -42,6 +43,7 @@ class UserSerializer(CommentSerializerMixin, DjoserUserSerializer):
         model = User
         read_only_fields = [
             'email',
+            'posts_count',
             'is_active',
             'is_vip',
             'is_author',
@@ -62,6 +64,9 @@ class UserSerializer(CommentSerializerMixin, DjoserUserSerializer):
 
     def get_compliments_count(self, instance) -> int:
         return super().get_comments_count(instance)
+
+    def get_posts_count(self, instance) -> int:
+        return instance.posts.count()
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

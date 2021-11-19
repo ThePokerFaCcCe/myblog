@@ -47,7 +47,7 @@ class UserViewSet(DjoserUserViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.request.method == "GET":
-            queryset = queryset.prefetch_related('compliments__user')
+            queryset = queryset.prefetch_related('compliments__user', 'posts')
 
         return queryset
 
