@@ -32,10 +32,16 @@ class UserCreateSerializer(DjoserUserCreateSerializer):
         ]
 
 
-class UserSerializer(CommentSerializerMixin, DjoserUserSerializer):
+class UserSerializer(CommentSerializerMixin,
+                     LikeSerializerMixin,
+                     DjoserUserSerializer):
     profile_image = PictureField(read_only=True)
     compliments_count = SerializerMethodField()
     posts_count = SerializerMethodField()
+
+    liked_by_user = SerializerMethodField()
+    likes = SerializerMethodField()
+    dislikes = SerializerMethodField()
 
     model_comment_field = 'compliments'
 
@@ -44,13 +50,16 @@ class UserSerializer(CommentSerializerMixin, DjoserUserSerializer):
         read_only_fields = [
             'email',
             'posts_count',
+            'compliments_count',
+            "liked_by_user",
+            "likes",
+            "dislikes",
             'is_active',
             'is_vip',
             'is_author',
             'is_staff',
             'is_superuser',
             'rank_expire_date',
-            'compliments_count',
             'created_at',
             'updated_at',
         ]

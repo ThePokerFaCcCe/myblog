@@ -43,11 +43,12 @@ from .serializers import (UserSerializer,
         examples=[USER_EDIT_REQUEST, USER_STAFF_EDIT_REQUEST, USER_SUPER_EDIT_REQUEST]
     ),
 )
-class UserViewSet(DjoserUserViewSet):
+class UserViewSet(LikeMixin, DjoserUserViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
-        if self.request.method == "GET":
+        if self.request.method == "GET" and self.action != 'like':
             queryset = queryset.prefetch_related('compliments__user', 'posts')
+        queryset = queryset.prefetch_related("likes")
 
         return queryset
 
@@ -63,6 +64,10 @@ class UserViewSet(DjoserUserViewSet):
             return UserProfileSerializer
 
         return super().get_serializer_class()
+
+    def like_comparer(self, instance, request):
+        if instance.pk == request.user.pk:
+            raise ValidationError({"user_id": "You cannot like yourself!"})
 
     @action(detail=True,
             methods=all_methods('post', 'delete', only_these=True),

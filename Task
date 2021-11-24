@@ -1,4 +1,3 @@
-user like
 accept comment by admin
 auto accept admin comments
 post view count
@@ -12,3 +11,4 @@ fix like schema problem
 -post vip support
 -user compliment
 -user count it's posts in serializers
+-user like

@@ -101,6 +101,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)
 
     compliments = GenericRelation(to=Comment, on_delete=CASCADE)
+    likes = GenericRelation(to=Like, on_delete=CASCADE)
 
     objects = UserManager()
 
@@ -194,7 +195,7 @@ class Post(Model):
 
     comments = GenericRelation(to=Comment, on_delete=CASCADE)
     tags = GenericRelation(to=TaggedItem, on_delete=CASCADE)
-    likes = GenericRelation(to=Like, on_delete=CASCADE)
+    likes = GenericRelation(to=Like, on_delete=CASCADE, related_name="liked-posts")
 
     category = ForeignKey(
         to=Category, on_delete=PROTECT,

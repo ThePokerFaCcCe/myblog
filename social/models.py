@@ -40,7 +40,7 @@ class Like(Model):
         DISLIKE = "DL", _("Dislike")
     status = CharField(max_length=2, choices=statuses.choices)
 
-    user = ForeignKey(to=User, on_delete=CASCADE, related_name='likes')
+    user = ForeignKey(to=User, on_delete=CASCADE, related_name='user_likes')
 
     content_type = ForeignKey(to=ContentType, on_delete=CASCADE)
     object_id = PositiveIntegerField()
