@@ -78,10 +78,15 @@ class Comment(MPTTModel):
 
     def clean(self):
         super().clean()
-        if self._email:
-            self._email = BaseUserManager.normalize_email(self._email)
+        if self.user:
+            self._name = None
+            self._email = None
+        else:
+            if self._email:
+                self._email = BaseUserManager.normalize_email(self._email)
 
     def save(self, *args, **kwargs):
+        self.clean()
         return super().save(*args, **kwargs)
 
     @property
