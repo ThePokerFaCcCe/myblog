@@ -81,6 +81,8 @@ class CommentSerializer(serializers.ModelSerializer):
         return reply
 
     def get_replies(self, obj):
+        if self.context.get("no-reply"):
+            return []
         return self.__class__(obj.get_children(), many=True, context=self.context).data
 
 

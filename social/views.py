@@ -57,7 +57,22 @@ class CommentViewset(mixins.RetrieveModelMixin,
             methods=all_methods('get', only_these=True),
             permission_classes=[permissions.IsAdminUser]
             )
-    def hidden_comments(self, req, *args, **kwargs):
+    def unaccepted(self, *args, **kwargs):
+        """Last sent comments that need to accept by admin"""
+        serializer = self.get_serializer(
+            self.get_queryset().filter(is_accepted=False).order_by('-created_at'),
+            read_only=True,
+            context={'no-reply': True},
+            many=True
+        )
+
+        return Response(serializer.data)
+
+    @action(detail=False,
+            methods=all_methods('get', only_these=True),
+            permission_classes=[permissions.IsAdminUser]
+            )
+    def hidden(self, req, *args, **kwargs):
         """Last deleted comments by users"""
         hidden_comments = self.get_queryset().filter(hidden=True).order_by('-created_at')
         serializer = self.get_serializer_class()(
@@ -135,8 +150,14 @@ class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet
 
     def perform_create(self, serializer):
         user = self.request.user
+        data = {
+            "content_type": self.get_content_type(),
+            "object_id": self._get_oid(),
+        }
+        if user.is_authenticated:
+            data["user"] = user
+            data["is_accepted"] = user.is_author or user.is_staff
+
         serializer.save(
-            content_type=self.get_content_type(),
-            object_id=self._get_oid(),
-            user=user if user.is_authenticated else None,
+            **data
         )

@@ -1,14 +1,14 @@
-accept comment by admin
-auto accept admin comments
 post view count
-fix like schema problem 
+fix like schema problem
 
 -prof tests
 -collection viewset by id & slug
 -post viewset by id & slug
 -post like
--post comment 
+-post comment
 -post vip support
 -user compliment
 -user count it's posts in serializers
 -user like
+-accept comment by admin (i don't need to add accept/ endpoint. admins can make it with PATCH method)
+-auto accept admin comments
