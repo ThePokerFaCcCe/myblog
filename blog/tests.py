@@ -1,6 +1,6 @@
-from django.utils.http import urlencode
-from rest_framework.test import APIClient
 from rest_framework import status
+from rest_framework.test import APIClient
+from django.utils.http import urlencode
 from django.utils.text import slugify
 from django.urls.base import reverse
 from django.test import TestCase
@@ -45,6 +45,14 @@ def create_post(only_data=False, **kwargs):
     return Post.objects.create(**data)
 
 
+def create_comment_data(user, reply_to: int = ''):
+    return {
+        "user": user.id,
+        "text": 'Hellow',
+        "reply_to": reply_to,
+    }
+
+
 class CreateSlugTest(TestCase):
     def test_post_slug(self):
         post = create_post(title='Hello joHn')
@@ -77,6 +85,22 @@ class UserTest(TestCase):
 
     def _user_profile_url(self, pk):
         return reverse("blog:users-profile-image", args=[pk])
+
+    def _user_compliments_url(self, pk):
+        return reverse("blog:user-comment-list", args=[pk])
+
+    def _send_compliment(self, client, complimenter, user):
+        res = client.post(
+            self._user_compliments_url(user.pk),
+            create_comment_data(complimenter)
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED, msg="Send compliment error")
+
+    def _post_detail_url(self, pk):
+        return f"{reverse('blog:post-detail')}?{urlencode({'id':pk})}"
+
+    def _post_create_url(self):
+        return reverse('blog:post-list')
 
     def setUp(self) -> None:
         self.superuser = create_user(is_superuser=True, is_staff=True)
@@ -173,6 +197,38 @@ class UserTest(TestCase):
         )
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_compliments_count(self):
+        count = 3
+        for _ in range(count):
+            self._send_compliment(self.user_client, self.user, self.staffuser)
+
+        res = self.staffuser_client.get(
+            self._user_url(self.staffuser.pk)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['compliments_count'], count)
+
+        res = self.staffuser_client.get(
+            self._user_url(self.user.pk)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['compliments_count'], 0)
+
+    def test_posts_count(self):
+        res = self.staffuser_client.post(
+            self._post_create_url(),
+            data=create_post(only_data=True)
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        res = self.staffuser_client.get(
+            self._user_url(self.staffuser.pk)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['posts_count'], 1)
 
 
 class PostTest(TestCase):
