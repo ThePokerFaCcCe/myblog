@@ -24,6 +24,15 @@ class LikeMixin:
             return [IsAuthenticated()]
         return super().get_permissions()
 
+    def like_comparer(self, instance, request):
+        """
+        For example, it can be used for not allowing
+        users to like their own items.
+
+        this method must raise `ValidationError`
+        """
+        pass
+
     @action(detail=True, methods=all_methods('put', 'patch'))
     def like(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -33,6 +42,7 @@ class LikeMixin:
             user=user
         )
         if request.method == 'POST':
+            self.like_comparer(instance, request)
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
 
