@@ -72,9 +72,14 @@ class CommentViewset(mixins.RetrieveModelMixin,
 
 @extend_schema_view(
     list=extend_schema(examples=[COMMENT_RESPONSE_PAGINATED]),
-    create=extend_schema(examples=[COMMENT_RESPONSE_RETRIEVE])
+    create=extend_schema(
+        description=(
+            "if the request has authentication credentials, "
+            "name and email will set to user's fullname and email, "
+            "and the entered name and email won't save. "
+            "otherwise. the entered name and email will save "
+        ), examples=[COMMENT_RESPONSE_RETRIEVE])
 )
-@permission_classes([permissions.IsAuthenticatedOrReadOnly])
 class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet):
     # You should set `get_content_type`
     # and `object_id_lookup_url`
@@ -129,7 +134,9 @@ class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet
         }
 
     def perform_create(self, serializer):
+        user = self.request.user
         serializer.save(
             content_type=self.get_content_type(),
-            object_id=self._get_oid()
+            object_id=self._get_oid(),
+            user=user if user.is_authenticated else None,
         )

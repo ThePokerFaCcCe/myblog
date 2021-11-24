@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
+from rest_framework.fields import CharField, EmailField
 
 from social.schemas import COMMENT_RESPONSE_RETRIEVE
 from .models import Like, Tag, TaggedItem, Comment
@@ -44,6 +45,8 @@ class LikeSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
     reply_to = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), required=False, allow_null=True)
+    name = CharField(max_length=50, allow_null=True, required=False)
+    email = EmailField(allow_null=True, required=False)
 
     class Meta:
         model = Comment
@@ -60,7 +63,6 @@ class CommentSerializer(serializers.ModelSerializer):
             'created_at',
         ]
         extra_kwargs = {
-            'email': {'write_only': True, 'source': "_email"},
             'is_accepted': {"read_only": True},
             'user': {'read_only': True},
             'hidden': {'read_only': True},
@@ -80,10 +82,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_replies(self, obj):
         return self.__class__(obj.get_children(), many=True, context=self.context).data
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        return super().create({**validated_data, "user": user})
 
 
 class CommentUpdateSerializer(serializers.ModelSerializer):
