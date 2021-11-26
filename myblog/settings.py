@@ -49,7 +49,6 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'COMPONENT_SPLIT_REQUEST': True,
     'TITLE': 'MyBlog API',
 
     'CONTACT': {
@@ -59,6 +58,8 @@ SPECTACULAR_SETTINGS = {
     },
     'LICENSE': {'name': "MIT"},
     'VERSION': '1.0.0',
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api/v[0-9]',
 }
 
 INTERNAL_IPS = [  # It's for debug tool
