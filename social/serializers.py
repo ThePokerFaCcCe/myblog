@@ -82,7 +82,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_replies(self, obj):
         if self.context.get("no-reply"):
-            return []
+            return None
         return self.__class__(obj.get_children(), many=True, context=self.context).data
 
 
@@ -100,6 +100,8 @@ class CommentAdminUpdateSerializer(serializers.ModelSerializer):
         model = Comment
         fields = [
             'id',
+            'name',
             'text',
+            'hidden',
             'is_accepted',
         ]

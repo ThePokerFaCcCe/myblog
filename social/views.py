@@ -7,7 +7,7 @@ from rest_framework.decorators import permission_classes, action
 from rest_framework.response import Response
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet
-from social.schemas import COMMENT_RESPONSE_PAGINATED, COMMENT_RESPONSE_RETRIEVE
+from social.schemas import COMMENT_RESPONSE_NOREPLY, COMMENT_RESPONSE_PAGINATED, COMMENT_RESPONSE_RETRIEVE, COMMENT_UPDATE_ADMIN, COMMENT_UPDATE_USER
 
 from core.permissions import IsAdmin, IsAuthor, IsOwnerOfItem, IsReadOnly
 from core.utils import all_methods
@@ -22,6 +22,10 @@ class TagViewset(viewsets.ModelViewSet):
     serializer_class = TagSerializer
 
 
+@extend_schema_view(
+    update=extend_schema(examples=[COMMENT_UPDATE_ADMIN, COMMENT_UPDATE_USER]),
+    partial_update=extend_schema(examples=[COMMENT_UPDATE_ADMIN, COMMENT_UPDATE_USER]),
+)
 @permission_classes([IsReadOnly | IsOwnerOfItem | IsAdmin])
 class CommentViewset(mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
@@ -53,6 +57,7 @@ class CommentViewset(mixins.RetrieveModelMixin,
                 comment.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(examples=[COMMENT_RESPONSE_NOREPLY])
     @action(detail=False,
             methods=all_methods('get', only_these=True),
             permission_classes=[permissions.IsAdminUser]
@@ -68,6 +73,7 @@ class CommentViewset(mixins.RetrieveModelMixin,
 
         return Response(serializer.data)
 
+    @extend_schema(examples=[COMMENT_RESPONSE_NOREPLY])
     @action(detail=False,
             methods=all_methods('get', only_these=True),
             permission_classes=[permissions.IsAdminUser]

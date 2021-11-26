@@ -1,9 +1,12 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.contenttypes.models import ContentType
 from django.http.response import Http404
+
+from social.schemas import LIKE_DISLIKED_RESPONSE, LIKE_LIKED_RESPONSE, LIKE_NOTLIKED_RESPONSE
 
 from .serializers import LikeSerializer
 from .models import Like
@@ -33,6 +36,7 @@ class LikeMixin:
         """
         pass
 
+    @extend_schema(examples=[LIKE_LIKED_RESPONSE, LIKE_DISLIKED_RESPONSE, LIKE_NOTLIKED_RESPONSE])
     @action(detail=True, methods=all_methods('put', 'patch'))
     def like(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -64,13 +68,13 @@ class LikeMixin:
             return Response(serializer.data, status=status_code)
 
         else:
-            if not like:
-                return Response(status=status.HTTP_204_NO_CONTENT)
 
             if request.method == 'GET':
+                if not like:
+                    return Response(data={"status": None, "user": user.id})
                 serializer = self.get_serializer(like)
                 return Response(serializer.data)
 
-            elif request.method == 'DELETE':
+            if request.method == 'DELETE' and like:
                 like.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
