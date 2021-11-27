@@ -26,6 +26,31 @@ class RUDWithFilterMixin:
 
 
 class SpecialMixin:
+    def get_special_for_fields(self):
+        """Returns a list of fields that contains `SpecialForChoices`"""
+        return ['special_for']
+
+    def filterby_special_for(self,
+                             queryset,
+                             choices: list[SpecialForChoices],
+                             status: str = "IS",
+                             ):
+        """Returns a list of Q filters for every field in `get_special_for_fields`.
+
+        Params
+        --------
+        `status` can set to "NOT" or "IS".
+        """
+        not_status = (status == 'NOT')
+        for item in self.get_special_for_fields():
+
+            for choice in choices:
+                queryset = queryset.filter(
+                    ~Q(**{item: choice}) if not_status else Q(**{item: choice})
+                )
+
+        return queryset
+
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
@@ -33,11 +58,15 @@ class SpecialMixin:
             if user.is_staff:
                 return queryset
             elif user.is_author:
-                return queryset.filter(~Q(special_for=SpecialForChoices.STAFF))
+                return self.filterby_special_for(queryset, status="NOT", choices=[SpecialForChoices.STAFF])
             elif user.is_vip:
-                return queryset.filter(Q(special_for=None) | Q(special_for=SpecialForChoices.VIP))
+                return self.filterby_special_for(
+                    queryset,
+                    status="NOT",
+                    choices=[SpecialForChoices.STAFF, SpecialForChoices.AUTHOR]
+                )
 
-        return queryset.filter(special_for=None)
+        return self.filterby_special_for(queryset, choices=[SpecialForChoices.NORMAL])
 
 
 class CategoryDefaultsMixin(SpecialMixin):
@@ -59,6 +88,9 @@ class PostDefaultsMixin(SpecialMixin):
     serializer_class = PostSerializer
     parser_classes = [MultiPartParser, JSONParser]
     permission_classes = [IsReadOnly | IsAdmin | (IsAuthor & IsOwnerOfItem)]
+
+    def get_special_for_fields(self):
+        return ['special_for', 'category__special_for']
 
 
 class PostDetailMixin(PostDefaultsMixin,
