@@ -16,6 +16,7 @@ django-filter = "*"
 django-mptt = "*"
 djangorestframework-simplejwt = "*"
 drf-nested-routers = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 autopep8 = "*"

@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
 
+    'corsheaders',
+
     'rest_framework.authtoken',
     'rest_framework_nested',
     'drf_spectacular',
@@ -34,6 +36,10 @@ INSTALLED_APPS = [
     'social',
     'blog',
 ]
+
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8000',
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -89,6 +95,7 @@ DJOSER = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
