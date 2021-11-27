@@ -297,7 +297,8 @@ class PostTest(TestCase):
 
         # Test no content result if there isn't liked by user
         res = self.user_client.get(like_url)
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], None)
 
         # Test liked successfully
         res = self.user_client.post(
@@ -361,6 +362,9 @@ class SpecialForTest(TestCase):
 
         self.post_list_url = reverse('blog:post-list')
 
+    def _post_detail_url(self, pk):
+        return f"{reverse('blog:post-detail')}?{urlencode({'id':pk})}"
+
     def test_user_get(self):
         res = self.user_client.get(self.post_list_url)
 
@@ -384,3 +388,12 @@ class SpecialForTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 4)
+
+    def test_special_category_post_is_hidden(self):
+        category = create_category(special_for='V')
+        post = create_post(category_id=category.pk)  # special_for is 'N'
+
+        res = self.user_client.get(
+            self._post_detail_url(post.pk)
+        )
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
