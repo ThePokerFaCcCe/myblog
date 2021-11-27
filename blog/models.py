@@ -137,6 +137,7 @@ class SpecialForChoices(TextChoices):
     STAFF = 'S', _("Staff")
     AUTHOR = 'A', _("Author")
     VIP = 'V', _("Vip")
+    NORMAL = 'N', _("Normal")
 
 
 class Category(Model):
@@ -148,7 +149,7 @@ class Category(Model):
     special_for = TextField(
         _("Special for"),
         help_text=_("This category and it's posts will only available for special users"),
-        null=True, default=None,
+        null=True, default=SpecialForChoices.NORMAL,
         max_length=1, choices=SpecialForChoices.choices)
 
     description = models.TextField(_("description"),
@@ -172,7 +173,7 @@ class Post(Model):
     special_for = TextField(
         _("Special for"),
         help_text=_("This post will only available for special users"),
-        null=True, default=None,
+        null=True, default=SpecialForChoices.NORMAL,
         max_length=1, choices=SpecialForChoices.choices)
     content = TextField(_("Content"))
     picture = PictureField(
