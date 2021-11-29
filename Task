@@ -15,4 +15,6 @@ fix like schema problem
 -schema without reply for hidden/unaccepted comments
 -schema comment edit for admins
 -schema for different statuses when get like(It's better now.)
+=SECURITY
 -sanitize inputs (just user inputs sanitized. can we trust admins and authors?)
+-control throttling (it's simple but better than nothing)

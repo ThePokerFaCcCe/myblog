@@ -1,3 +1,4 @@
+from rest_framework.throttling
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
@@ -40,12 +41,20 @@ INSTALLED_APPS = [
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000',
 )
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_SCHEMA_CLASS': "drf_spectacular.openapi.AutoSchema"
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        # second, minute, hour, day
+        'anon': '40/minute',
+        'user': '50/minute',
+    },
+    'DEFAULT_SCHEMA_CLASS': "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
