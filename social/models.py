@@ -7,6 +7,7 @@ from django.db.models.fields.related import ForeignKey
 from django.db.models.enums import TextChoices
 from django.db.models.deletion import CASCADE
 from django.db.models.base import Model
+from django.utils.html import escape
 from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -82,8 +83,9 @@ class Comment(MPTTModel):
             self._name = None
             self._email = None
         else:
-            if self._email:
-                self._email = BaseUserManager.normalize_email(self._email)
+            self._email = BaseUserManager.normalize_email(self._email)
+            self._name = escape(self._name)
+        self.text = escape(self.text)
 
     def save(self, *args, **kwargs):
         self.clean()

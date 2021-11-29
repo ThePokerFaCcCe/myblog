@@ -13,5 +13,6 @@ fix like schema problem
 -accept comment by admin (i don't need to add accept/ endpoint. admins can make it with PATCH method)
 -auto accept admin comments
 -schema without reply for hidden/unaccepted comments
--schema comment edit for admins 
+-schema comment edit for admins
 -schema for different statuses when get like(It's better now.)
+-sanitize inputs (just user inputs sanitized. can we trust admins and authors?)

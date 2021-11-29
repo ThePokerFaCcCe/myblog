@@ -4,9 +4,10 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import make_password
 from django.core.validators import MinLengthValidator
 from django.utils.translation import gettext_lazy as _
-from django.db.models.fields.related import ForeignKey
-from django.db.models.enums import TextChoices
+from django.utils.html import escape
 from django.db.models.fields import TextField
+from django.db.models.enums import TextChoices
+from django.db.models.fields.related import ForeignKey
 from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.base import Model
 from django.core.mail import send_mail
@@ -117,6 +118,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
+        self.first_name = escape(self.first_name)
+        self.last_name = escape(self.last_name)
+        self.bio = escape(self.bio)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
 
     def get_full_name(self):
         """
