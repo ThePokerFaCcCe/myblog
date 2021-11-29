@@ -45,15 +45,22 @@ class CommentTest(TestCase):
 
         return get_user_model().objects.create_user(**data)
 
-    def _create_comment(self, user=None):
-        return Comment.objects.create(
-            text='Hellow',
-            _name='John Doe',
-            _email='johndoe@gmail.com',
-            user=user,
-            content_type=ContentType.objects.get_for_model(self.user),
-            object_id=self.user.pk
-        )
+    def _create_comment(self, user=None, **kwargs):
+        data = {
+            "text": 'Hellow',
+            "_name": 'John Doe',
+            "_email": 'johndoe@gmail.com',
+            "user": user,
+            "content_type": ContentType.objects.get_for_model(self.user),
+            "object_id": self.user.pk
+        }
+        return Comment.objects.create(**(data | kwargs))
+
+    def test_input_safety(self):
+        bad_input = "<script>burn()</script>"
+        c = self._create_comment(name=bad_input, text=bad_input)
+        self.assertNotEqual(c.name, bad_input)
+        self.assertNotEqual(c.text, bad_input)
 
     def test_create_with_user(self):
         comment = self._create_comment(user=self.user)

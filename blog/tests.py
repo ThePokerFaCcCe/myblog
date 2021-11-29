@@ -123,6 +123,13 @@ class UserTest(TestCase):
             'is_superuser': True,
         }
 
+    def test_input_safety(self):
+        bad_input = "<script>burn()</script>"
+        u = create_user(first_name=bad_input, last_name=bad_input, bio=bad_input)
+        self.assertNotEqual(u.first_name, bad_input)
+        self.assertNotEqual(u.last_name, bad_input)
+        self.assertNotEqual(u.bio, bad_input)
+
     def test_edit_self_user(self):
         res = self.user_client.patch(
             self._user_url(self.user.pk),
