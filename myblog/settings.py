@@ -1,4 +1,3 @@
-from rest_framework.throttling
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
