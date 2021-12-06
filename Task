@@ -2,6 +2,12 @@ sandbox created ids doesn't start from 0
 sandbox for instances like Post.likes.**class**.filter(...)
 sandbox for serializers and their primarykeyfield
 
+NOTE:
+*I don't exactly know why I wanted to build this!
+*I can just start server with another config in subdomain\
+*and use that for testing...
+*But I will save this feature in another branch for later if needed.
+
 post view count
 fix like schema problem
 
