@@ -1,3 +1,7 @@
+sandbox created ids doesn't start from 0
+sandbox for instances like Post.likes.**class**.filter(...)
+sandbox for serializers and their primarykeyfield
+
 post view count
 fix like schema problem
 
@@ -18,3 +22,4 @@ fix like schema problem
 =SECURITY
 -sanitize inputs (just user inputs sanitized. can we trust admins and authors?)
 -control throttling (it's simple but better than nothing)
+-add sandbox

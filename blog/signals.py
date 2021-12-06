@@ -5,13 +5,13 @@ from django.dispatch import receiver
 from .models import Category, Post
 
 
-def _create_slug_from_title(model, instance):
+def _create_slug_from_title(instance):
     title = instance.title
 
     slug = slugify(title, allow_unicode=True)
     i = 1
 
-    while model.objects.filter(slug=slug).exists():
+    while instance.__class__.objects.filter(slug=slug).exists():
         slug = slugify(f"{title}-{i}", allow_unicode=True)
         i += 1
 
@@ -22,11 +22,11 @@ def _create_slug_from_title(model, instance):
 def create_slug_from_title_category(sender, *args, **kwargs):
     instance = kwargs['instance']
     if not instance.slug:
-        _create_slug_from_title(Category, instance)
+        _create_slug_from_title(instance)
 
 
 @receiver(pre_save, sender=Post)
 def create_slug_from_title_post(sender, *args, **kwargs):
     instance = kwargs['instance']
     if not instance.slug:
-        _create_slug_from_title(Post, instance)
+        _create_slug_from_title(instance)

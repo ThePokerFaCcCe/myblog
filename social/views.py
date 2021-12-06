@@ -10,6 +10,7 @@ from rest_framework.viewsets import GenericViewSet
 from social.schemas import COMMENT_RESPONSE_NOREPLY, COMMENT_RESPONSE_PAGINATED, COMMENT_RESPONSE_RETRIEVE, COMMENT_UPDATE_ADMIN, COMMENT_UPDATE_USER
 
 from core.permissions import IsAdmin, IsAuthor, IsOwnerOfItem, IsReadOnly
+from core.mixins import SandBoxMixin
 from core.utils import all_methods
 from core.paginations import DefaultLimitOffsetPagination
 from .models import Tag, Comment
@@ -17,7 +18,7 @@ from .serializers import CommentAdminUpdateSerializer, CommentUpdateSerializer, 
 
 
 @permission_classes([IsReadOnly | IsAuthor | IsAdmin])
-class TagViewset(viewsets.ModelViewSet):
+class TagViewset(SandBoxMixin, viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
@@ -27,17 +28,12 @@ class TagViewset(viewsets.ModelViewSet):
     partial_update=extend_schema(examples=[COMMENT_UPDATE_ADMIN, COMMENT_UPDATE_USER]),
 )
 @permission_classes([IsReadOnly | IsOwnerOfItem | IsAdmin])
-class CommentViewset(mixins.RetrieveModelMixin,
+class CommentViewset(SandBoxMixin, mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
                      mixins.DestroyModelMixin,
                      viewsets.GenericViewSet):
     queryset = Comment.objects.prefetch_related('reply', 'user').all()
     http_method_names = all_methods('put')
-
-    def get_queryset(self):
-        if self.request.method == 'DELETE':
-            return Comment.objects.all()
-        return self.queryset
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -101,12 +97,13 @@ class CommentViewset(mixins.RetrieveModelMixin,
             "otherwise. the entered name and email will save "
         ), examples=[COMMENT_RESPONSE_RETRIEVE])
 )
-class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet):
+class ListCreateCommentsViewset(SandBoxMixin, ListModelMixin,
+                                CreateModelMixin, GenericViewSet):
     # You should set `get_content_type`
     # and `object_id_lookup_url`
     # in your subclasses
 
-    queryset = None
+    queryset = Comment.objects.all()
     """Custom queryset that contains comments"""
 
     object_queryset = None
@@ -122,30 +119,33 @@ class ListCreateCommentsViewset(ListModelMixin, CreateModelMixin, GenericViewSet
     serializer_class = CommentSerializer
     pagination_class = DefaultLimitOffsetPagination
 
+    def get_object_queryset(self):
+        assert isinstance(self.object_queryset, QuerySet), (
+            "You should set `object_queryset`"
+            "for your `ListCreateCommentsViewset` subclass"
+        )
+        return self.get_custom_queryset(self.object_queryset)
+
     def _get_oid(self):
         if not self._oid:
             oid = self.kwargs.get(self.object_id_lookup_url)
-
-            assert isinstance(self.object_queryset, QuerySet), (
-                "You should set `object_queryset`"
-                "for your `ListCreateCommentsViewset` subclass"
-            )
-            if not self.object_queryset.filter(pk=oid).exists():
+            object_qs = self.get_object_queryset()
+            if not object_qs.filter(pk=oid).exists():
                 raise Http404
             self._oid = oid
         return self._oid
 
     def get_queryset(self):
-        queryset = self.queryset
-        if not queryset:
-            queryset = Comment.objects.filter(
-                content_type=self.get_content_type(),
-                object_id=self._get_oid(),
-            ).prefetch_related("user")
+        qs = super().get_queryset()
 
-        queryset = queryset.all()
+        qs = self.queryset.filter(
+            content_type=self.get_content_type(),
+            object_id=self._get_oid(),
+        ).prefetch_related("user")
 
-        return queryset.get_cached_trees()
+        qs = qs.all()
+
+        return qs.get_cached_trees()
 
     def get_serializer_context(self):
         return {

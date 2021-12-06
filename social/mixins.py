@@ -41,8 +41,9 @@ class LikeMixin:
     def like(self, request, *args, **kwargs):
         instance = self.get_object()
         user = self.request.user
+        like_field = getattr(instance, self.model_like_field)
         like = liked_by_user(
-            getattr(instance, self.model_like_field).all(),
+            like_field.all(),
             user=user
         )
         if request.method == 'POST':
@@ -57,7 +58,7 @@ class LikeMixin:
                 like.save()
                 status_code = status.HTTP_200_OK
             else:
-                like = Like.objects.create(
+                like = like_field.__class__.objects.create(
                     user=user, object_id=instance.pk,
                     status=like_status,
                     content_type=ContentType.objects.get_for_model(instance.__class__),

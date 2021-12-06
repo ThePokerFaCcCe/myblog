@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from blog.models import Category, Post, SpecialForChoices
 from blog.serializers import CategorySerializer, PostSerializer
 from core.permissions import IsAdmin, IsAuthor, IsOwnerOfItem, IsReadOnly
-from core.mixins import DeletePicMixin
+from core.mixins import DeletePicMixin, SandBoxMixin
 
 
 class RUDWithFilterMixin:
@@ -69,7 +69,7 @@ class SpecialMixin:
         return self.filterby_special_for(queryset, choices=[SpecialForChoices.NORMAL])
 
 
-class CategoryDefaultsMixin(SpecialMixin):
+class CategoryDefaultsMixin(SpecialMixin, SandBoxMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     parser_classes = [MultiPartParser, JSONParser]
@@ -83,7 +83,7 @@ class CategoryDetailMixin(CategoryDefaultsMixin,
     pass
 
 
-class PostDefaultsMixin(SpecialMixin):
+class PostDefaultsMixin(SpecialMixin, SandBoxMixin):
     queryset = Post.objects.select_related("category").prefetch_related("tags__tag", 'likes', 'author', 'comments__user')
     serializer_class = PostSerializer
     parser_classes = [MultiPartParser, JSONParser]

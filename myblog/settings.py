@@ -8,7 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = True
-ALLOWED_HOSTS = []
+
+# For using subdomains in my local system, I used this answer
+# https://stackoverflow.com/a/56921347/14034832
+# Now I can use example.com:8000
+ALLOWED_HOSTS = ['example.com', 'sandbox.example.com']
 
 AUTH_USER_MODEL = 'blog.User'
 # Application definition
@@ -19,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.sites',
     'django.contrib.auth',
 
     'corsheaders',
@@ -99,12 +104,20 @@ DJOSER = {
     },
 }
 
+SUBDOMAIN_URLCONFS = {
+    None: "myblog.urls",
+    "www": "myblog.urls",
+    "sandbox": "myblog.urls",
+}
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'subdomains.middleware.SubdomainMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -142,7 +155,14 @@ DATABASES = {
         'HOST': config("DB_HOST"),
         'USER': config("DB_USER"),
         'PASSWORD': config("DB_PASSWORD"),
-    }
+    },
+    'sandbox': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'myblog_sandbox',
+        'HOST': config("DB_HOST"),
+        'USER': config("DB_USER"),
+        'PASSWORD': config("DB_PASSWORD"),
+    },
 }
 
 
