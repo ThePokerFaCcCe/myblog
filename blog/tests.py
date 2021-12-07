@@ -341,6 +341,28 @@ class PostTest(TestCase):
         self.assertEqual(res.data['dislikes'], 1)
         self.assertEqual(res.data['liked_by_user'], False)
 
+    def _get_post(self, client, post, REMOTE_ADDR="127.0.0.1"):
+        res = client.get(
+            self._post_detail_url(post.pk),
+            REMOTE_ADDR=REMOTE_ADDR
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        return res
+
+    def test_view_count(self):
+        post = create_post()
+
+        guest_client = APIClient()
+        self._get_post(guest_client, post, '192.1.1.4')  # 1
+        self._get_post(guest_client, post, '192.1.1.4')  # 1
+        self._get_post(guest_client, post)  # 1
+
+        self._get_post(self.user_client, post)  # 2
+        self._get_post(self.user_client, post, '155.3.4.51')  # 2
+
+        res = self._get_post(self.staffuser_client, post)  # 3
+        self.assertEqual(res.data['view_count'], 3)
+
 
 class SpecialForTest(TestCase):
 
