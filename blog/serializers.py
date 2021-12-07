@@ -213,6 +213,7 @@ class PostInfoSerializer(LikeSerializerMixin,
                          TagSerializerMixin,
                          CommentSerializerMixin,
                          UserSerializerMixin,
+                         ViewCountSerializerMixin,
                          serializers.ModelSerializer):
     picture = PictureField(required=False, allow_null=True)
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
@@ -221,6 +222,7 @@ class PostInfoSerializer(LikeSerializerMixin,
     likes = SerializerMethodField()
     dislikes = SerializerMethodField()
     comments_count = SerializerMethodField()
+    view_count = SerializerMethodField()
 
     content = SerializerMethodField()
 
@@ -240,10 +242,14 @@ class PostInfoSerializer(LikeSerializerMixin,
             'dislikes',
             'liked_by_user',
             'comments_count',
+            'view_count',
             "created_at",
             "updated_at",
         ]
         read_only_fields = fields
 
     def get_content(self, instance: Post) -> str:
-        return f"{instance.content[:50]} ..."
+        content = instance.content
+        if len(content) > 50:
+            return f"{content[:50]} ..."
+        return content

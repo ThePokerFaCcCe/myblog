@@ -1,5 +1,5 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from django.contrib.contenttypes.models import ContentType
 from djoser.views import UserViewSet as DjoserUserViewSet
 from django.contrib.auth import get_user_model
@@ -28,7 +28,7 @@ from .schemas import (POST_RESPONSE_PAGINATED, POST_RESPONSE_RETRIEVE,
 from .mixins import (CategoryDefaultsMixin, CategoryDetailMixin,
                      PostDefaultsMixin, PostDetailMixin,
                      RUDWithFilterMixin)
-from .serializers import (UserSerializer,
+from .serializers import (PostInfoSerializer, UserSerializer,
                           UserProfileSerializer,
                           UserStaffEditSerializer, UserSuperEditSerializer)
 
@@ -135,6 +135,11 @@ class PostListViewSet(PostDefaultsMixin,
     pagination_class = DefaultLimitOffsetPagination
     search_fields = ['title', 'content']
     ordering_fields = ['title', 'updated_at', 'created_at', 'category__title']
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return PostInfoSerializer
+        return super().get_serializer_class()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
