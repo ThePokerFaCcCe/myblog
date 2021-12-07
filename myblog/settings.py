@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'picturic',
     'social',
     'blog',
+    'viewcount',
 ]
 
 CORS_ORIGIN_WHITELIST = (
