@@ -1,5 +1,5 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, extend_schema_view
 from django.contrib.contenttypes.models import ContentType
 from djoser.views import UserViewSet as DjoserUserViewSet
 from django.contrib.auth import get_user_model
@@ -19,6 +19,7 @@ from core.filters import OrderingFilterWithSchema
 from core.utils import all_methods
 from social.views import ListCreateCommentsViewset
 from social.mixins import LikeMixin
+from viewcount.mixins import ViewCountMixin
 from .models import Post
 from .filters import CategoryRUDFilter, PostRUDFilter, PostFilter
 from .schemas import (POST_RESPONSE_PAGINATED, POST_RESPONSE_RETRIEVE,
@@ -139,13 +140,17 @@ class PostListViewSet(PostDefaultsMixin,
         serializer.save(author=self.request.user)
 
 
+@extend_schema(parameters=[rud_parameters,
+                           OpenApiParameter('id', exclude=True),
+                           OpenApiParameter('slug', exclude=True)
+                           ],
+               )
 @extend_schema_view(  # If i don't use it, it will be shown as response for like view
     retrieve=extend_schema(examples=[POST_RESPONSE_RETRIEVE]),
     update=extend_schema(examples=[POST_RESPONSE_RETRIEVE]),
     partial_update=extend_schema(examples=[POST_RESPONSE_RETRIEVE]),
 )
-@extend_schema(parameters=[rud_parameters])
-class PostDetailViewSet(RUDWithFilterMixin, LikeMixin, PostDetailMixin):
+class PostDetailViewSet(RUDWithFilterMixin, ViewCountMixin, LikeMixin, PostDetailMixin):
     filterset_class = PostRUDFilter
 
 
