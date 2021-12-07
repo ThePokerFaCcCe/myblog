@@ -1,5 +1,7 @@
-post view count
-fix like schema problem
+NOTE:
+*OK, I think it's done for now. I mean I wrote my base ideas.
+*I know code have bugs and I'll try to find and fix them or add new features.
+*1400/09/16 SH - 2021-12-07 AD
 
 -prof tests
 -collection viewset by id & slug
@@ -15,6 +17,8 @@ fix like schema problem
 -schema without reply for hidden/unaccepted comments
 -schema comment edit for admins
 -schema for different statuses when get like(It's better now.)
-=SECURITY
+=<security>
 -sanitize inputs (just user inputs sanitized. can we trust admins and authors?)
 -control throttling (it's simple but better than nothing)
+=</security>
+-post view count
