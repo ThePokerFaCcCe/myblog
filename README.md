@@ -7,7 +7,7 @@ Weblog API backend with Django and DRF
 
 3 - Create virtual environment and install packages using `py -m pipenv install` in cloned directory
 
-4 - Create `myblog` table in your mysql database
+4 - Create `myblog` database in your mysql server
 
 5 - Create `.env` file in cloned directory and copy & replace `.env.example` with right data into it.
 
